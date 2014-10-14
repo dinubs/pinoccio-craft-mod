@@ -1,6 +1,8 @@
 Pinoccio Craft
 ==============
 
+[Mod Showcase Video](http://vimeo.com/108850579)
+
 This is Pinoccio Craft, a Minecraft companion for the Pinoccio api.
 
 Currently included in the mod are multiple commands ("led", "run", "read"), along with 2 blocks ("ledblock", and custom scoutscript blocks).
