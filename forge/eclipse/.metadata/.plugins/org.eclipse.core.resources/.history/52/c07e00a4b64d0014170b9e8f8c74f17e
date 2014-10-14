@@ -1,0 +1,191 @@
+package gavin.pinoccio;
+
+import java.util.List;
+import java.util.Random;
+
+import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
+import net.minecraft.client.Minecraft;
+import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+
+public class PinReadBlock extends Block {
+	public PinoccioAPI pinoccioAPI = new PinoccioAPI();
+	
+	public int troopId;
+	public int scoutId;
+	public String apiKey;
+	public String[] commands;
+	public int commandNum = 0;
+	public boolean powered = false;
+
+	protected PinReadBlock(Material mat, String api, int troop, int scout, String[] commands, boolean powered) {
+		
+		super(Material.cloth);
+		
+		this.setBlockTextureName("pinoccio:scoutScriptBlock");
+		this.setCreativeTab(CreativeTabs.tabRedstone);
+		this.setBlockName("pinReadBlock");
+		this.troopId = troop;
+		this.scoutId = scout;
+		this.apiKey = api;
+		this.commands = commands;
+		this.powered = powered;		
+		
+	}
+
+	@Override
+	public int tickRate(World world)
+	{
+	    return 5;
+	}
+	public void updateBlock(World world, int x, int y, int z, Random rand) {
+		int meta = this.getDamageValue(world, x, y, z); 
+        if (!world.isRemote)
+        {
+            if (world.isBlockIndirectlyGettingPowered(x, y, z))
+            {
+            	JsonElement stuff = this.pinoccioAPI.runJsonBitlashCommand(this.troopId, this.scoutId, "pin.report.digital", this.apiKey);
+            	JsonObject data = stuff.getAsJsonObject();
+            	String[] reply = data.toString().split(",");
+            	String newString = "";
+            	if(meta == 0) {
+            		newString = reply[meta + 11].split("\\[")[1];         		
+            	} else {
+            		newString = reply[meta + 11];
+            	}          
+            	for(int i = 0; i < reply.length ; i++) {
+            		System.out.println(i + reply[i]);
+            	}
+            	int target = 0;
+            	if(this.powered) {
+            		target = world.getBlockMetadata( x, y, z) - 6; 
+            	} else {
+            		target = world.getBlockMetadata( x, y, z) + 6;
+            	}
+            	if(newString.equals("1")) {
+            		this.setLightOpacity(0);
+            		Minecraft.getMinecraft().thePlayer.sendChatMessage("This pin is off");
+            		world.setBlockMetadataWithNotify(x, y, z, this.getIdFromBlock(this), target);
+            	} else if(newString.equals("0")) {
+            		this.isProvidingWeakPower(world, x, y, z, 1);
+            		Minecraft.getMinecraft().thePlayer.sendChatMessage("This pin is on");
+            		world.setBlockMetadataWithNotify(x, y, z, this.getIdFromBlock(this), target);
+            	} else {
+            		Minecraft.getMinecraft().thePlayer.sendChatMessage("This pin is not set");
+            		this.setLightOpacity(0);
+            		world.setBlockMetadataWithNotify(x, y, z, this.getIdFromBlock(this), target);
+            	}
+            }            	
+        }
+	}
+	
+	public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int par6, float par7, float par8, float par9)
+    {
+		Minecraft.getMinecraft().thePlayer.sendChatMessage("Read Pin " + commands[this.getDamageValue(world, x, y, z)]);
+        return true;
+    }
+	public void onNeighborBlockChange(World world, int x, int y, int z, Block id)
+    {		
+		int meta = this.getDamageValue(world, x, y, z); 
+        if (!world.isRemote)
+        {
+            if (world.isBlockIndirectlyGettingPowered(x, y, z))
+            {
+            	JsonElement stuff = this.pinoccioAPI.runJsonBitlashCommand(this.troopId, this.scoutId, "pin.report.digital", this.apiKey);
+            	JsonObject data = stuff.getAsJsonObject();
+            	String[] reply = data.toString().split(",");
+            	String newString = "";
+            	if(meta == 0) {
+            		newString = reply[meta + 11].split("\\[")[1];            		
+            	} else {
+            		newString = reply[meta + 11];
+            	}          
+            	for(int i = 0; i < reply.length ; i++) {
+            		System.out.println(i + reply[i]);
+            	}
+            	if(newString.equals("1")) {
+            		Minecraft.getMinecraft().thePlayer.sendChatMessage("This pin is off");
+            		if (!this.powered) { return;}
+            		world.setBlockMetadataWithNotify(x, y, z, this.getIdFromBlock(this), target);
+            	} else if(newString.equals("0")) {
+            		Minecraft.getMinecraft().thePlayer.sendChatMessage("This pin is on");
+            		if (this.powered) { return;}
+            		world.setBlockMetadataWithNotify(x, y, z, this.getIdFromBlock(this), target);
+            	} else {
+            		Minecraft.getMinecraft().thePlayer.sendChatMessage("This pin is not set");
+            		if (!this.powered) { return;}
+            		world.setBlockMetadataWithNotify(x, y, z, this.getIdFromBlock(this), target);
+            	}
+            }            	
+        }
+    }
+	
+	public void onBlockAdded(World world, int x, int y, int z)
+    {
+        if (!this.powered)
+        {
+            super.onBlockAdded(world, x, y, z);
+        }
+
+        if (this.powered)
+        {
+            world.notifyBlocksOfNeighborChange(x, y - 1, z, this);
+            world.notifyBlocksOfNeighborChange(x, y + 1, z, this);
+            world.notifyBlocksOfNeighborChange(x - 1, y, z, this);
+            world.notifyBlocksOfNeighborChange(x + 1, y, z, this);
+            world.notifyBlocksOfNeighborChange(x, y, z - 1, this);
+            world.notifyBlocksOfNeighborChange(x, y, z + 1, this);
+        }
+    }
+
+    public void breakBlock(World world, int x, int y, int z, Block block, int num)
+    {
+    	if (this.powered)
+        {
+            world.notifyBlocksOfNeighborChange(x, y - 1, z, this);
+            world.notifyBlocksOfNeighborChange(x, y + 1, z, this);
+            world.notifyBlocksOfNeighborChange(x - 1, y, z, this);
+            world.notifyBlocksOfNeighborChange(x + 1, y, z, this);
+            world.notifyBlocksOfNeighborChange(x, y, z - 1, this);
+            world.notifyBlocksOfNeighborChange(x, y, z + 1, this);
+        }
+    }
+
+    public int isProvidingWeakPower(IBlockAccess world, int x, int y, int z, int p_149709_5_)
+    {
+    	return 0;
+    }
+
+    public Item getItemDropped(int p_149650_1_, Random p_149650_2_, int p_149650_3_)
+    {
+        return Item.getItemFromBlock(this);
+    }
+
+    /**
+     * Can this block provide power. Only wire currently seems to have this change based on its state.
+     */
+    public boolean canProvidePower()
+    {
+        return false;
+    }
+	
+	@Override
+	public int damageDropped(int meta) {
+	    return meta;
+	}
+
+	public void getSubBlocks(Item item, CreativeTabs tab, List list) {
+	    for (int i = 0; i < this.commands.length; i ++) {
+	        list.add(new ItemStack(item, 1, i));
+	    }
+	}
+}

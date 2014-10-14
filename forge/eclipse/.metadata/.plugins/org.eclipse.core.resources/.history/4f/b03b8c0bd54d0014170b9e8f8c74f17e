@@ -1,0 +1,131 @@
+package gavin.pinoccio;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.command.CommandBase;
+import net.minecraft.command.CommandException;
+import net.minecraft.command.ICommandSender;
+import net.minecraft.command.WrongUsageException;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+
+public class ReadCommand extends CommandBase
+{
+		
+	  public PinoccioAPI pinoccioAPI = new PinoccioAPI();
+	
+	  public int troopId;
+	  public int scoutId;
+	  public String apiKey;
+	
+	  private List aliases;
+	  public String[] commands = {"d2", "d3", "d4", "d5", "d6", "d7", "d8"};
+	  public ReadCommand()
+	  {
+	    this.aliases = new ArrayList();
+	    this.aliases.add("read");
+	    this.aliases.add("r");
+	  }
+
+	  @Override
+	  public String getCommandName()
+	  {
+	    return "read";
+	  }
+
+	  @Override
+	  public String getCommandUsage(ICommandSender icommandsender)
+	  {
+	    return "read <pin>";
+	  }
+
+	  @Override
+	  public List getCommandAliases()
+	  {
+	    return this.aliases;
+	  }
+
+	  @Override
+	  public void processCommand(ICommandSender icommandsender, String[] astring)
+	  {
+	    if(astring.length == 0)
+	    {
+	    	Minecraft.getMinecraft().thePlayer.sendChatMessage("Not enough pins entered, please use one");
+	    	throw new WrongUsageException("commands.read.usage", new Object[0]);
+	    }
+	    if(astring.length > 1) {
+	    	Minecraft.getMinecraft().thePlayer.sendChatMessage("Too many pins, please only use one");
+	    	throw new CommandException("commands.read.failed", new Object[0]);
+	    }
+	    boolean pass = false;
+	    int meta = 0;
+	    for(int i = 0; i < this.commands.length; i++) {
+	    	if (astring[0].equals(this.commands[i])) {
+	    		pass = true;
+	    		i = this.commands.length;
+	    		meta = i
+	    	}
+	    }
+	    if(!pass) {return;}
+	    
+	    JsonElement stuff = this.pinoccioAPI.runJsonBitlashCommand(this.troopId, this.scoutId, "pin.report.digital", this.apiKey);
+    	JsonObject data = stuff.getAsJsonObject();
+    	String[] reply = data.toString().split(",");
+    	String newString = "";
+    	if(meta == 0) {
+    		newString = reply[meta + 11].split("\\[")[1];            		
+    	} else {
+    		newString = reply[meta + 11];
+    	}          
+    	for(int i = 0; i < reply.length ; i++) {
+    		System.out.println(i + reply[i]);
+    	}
+    	if(newString.equals("1")) {
+    		Minecraft.getMinecraft().thePlayer.sendChatMessage("This pin is off");
+    		Minecraft.getMinecraft().thePlayer.sendChatMessage("" + this.getIdFromBlock(this));
+    		world.setBlock(x, y, z, 169, 169, meta);
+    		return;
+    	} else if(newString.equals("0")) {
+    		Minecraft.getMinecraft().thePlayer.sendChatMessage("This pin is on");
+    		Minecraft.getMinecraft().thePlayer.sendChatMessage("" + this.getIdFromBlock(this));
+    		world.setBlock(x, y, z, 169, 169, meta);
+    		return;
+    	} else {
+    		Minecraft.getMinecraft().thePlayer.sendChatMessage("This pin is not set");
+    		Minecraft.getMinecraft().thePlayer.sendChatMessage("" + this.getIdFromBlock(this));
+    		world.setBlock(x, y, z, 169, 169, meta);
+    		return;
+    	}
+	    
+	    Minecraft.getMinecraft().thePlayer.sendChatMessage("Pin: [" + astring[0] + "]");
+	    Minecraft.getMinecraft().thePlayer.sendChatMessage("" + icommandsender.getPlayerCoordinates());
+	  }
+
+	  @Override
+	  public boolean canCommandSenderUseCommand(ICommandSender icommandsender)
+	  {
+	    return true;
+	  }
+
+	  @Override
+	  public List addTabCompletionOptions(ICommandSender icommandsender,
+	      String[] astring)
+	  {
+	    return null;
+	  }
+
+	  @Override
+	  public boolean isUsernameIndex(String[] astring, int i)
+	  {
+	    return false;
+	  }
+
+	  @Override
+	  public int compareTo(Object o)
+	  {
+	    return 0;
+	  }
+	}

@@ -1,0 +1,89 @@
+---- Minecraft Crash Report ----
+// Who set us up the TNT?
+
+Time: 10/3/14 3:55 PM
+Description: Exception while updating neighbours
+
+java.lang.IllegalStateException: Not a JSON Object: "reply"
+	at com.google.gson.JsonElement.getAsJsonObject(JsonElement.java:90)
+	at gavin.pinoccio.PinReadBlock.onNeighborBlockChange(PinReadBlock.java:74)
+	at net.minecraft.world.World.notifyBlockOfNeighborChange(World.java:763)
+	at net.minecraft.world.World.notifyBlocksOfNeighborChange(World.java:715)
+	at net.minecraft.world.World.notifyBlockChange(World.java:673)
+	at net.minecraft.world.World.setBlock(World.java:523)
+	at net.minecraft.item.ItemBlock.placeBlockAt(ItemBlock.java:232)
+	at net.minecraft.item.ItemBlock.onItemUse(ItemBlock.java:116)
+	at net.minecraft.item.ItemStack.tryPlaceItemIntoWorld(ItemStack.java:141)
+	at net.minecraft.server.management.ItemInWorldManager.activateBlockOrUseItem(ItemInWorldManager.java:422)
+	at net.minecraft.network.NetHandlerPlayServer.processPlayerBlockPlacement(NetHandlerPlayServer.java:591)
+	at net.minecraft.network.play.client.C08PacketPlayerBlockPlacement.processPacket(C08PacketPlayerBlockPlacement.java:74)
+	at net.minecraft.network.play.client.C08PacketPlayerBlockPlacement.processPacket(C08PacketPlayerBlockPlacement.java:122)
+	at net.minecraft.network.NetworkManager.processReceivedPackets(NetworkManager.java:241)
+	at net.minecraft.network.NetworkSystem.networkTick(NetworkSystem.java:182)
+	at net.minecraft.server.MinecraftServer.updateTimeLightAndEntities(MinecraftServer.java:726)
+	at net.minecraft.server.MinecraftServer.tick(MinecraftServer.java:614)
+	at net.minecraft.server.integrated.IntegratedServer.tick(IntegratedServer.java:118)
+	at net.minecraft.server.MinecraftServer.run(MinecraftServer.java:485)
+	at net.minecraft.server.MinecraftServer$2.run(MinecraftServer.java:752)
+
+
+A detailed walkthrough of the error, its code path and all known details is as follows:
+---------------------------------------------------------------------------------------
+
+-- Head --
+Stacktrace:
+	at com.google.gson.JsonElement.getAsJsonObject(JsonElement.java:90)
+	at gavin.pinoccio.PinReadBlock.onNeighborBlockChange(PinReadBlock.java:74)
+
+-- Block being updated --
+Details:
+	Source block type: ID #0 (tile.air // net.minecraft.block.BlockAir)
+	Block type: ID #168 (tile.pinReadBlock // gavin.pinoccio.PinReadBlock)
+	Block data value: 0 / 0x0 / 0b0000
+	Block location: World: (1626,56,-466), Chunk: (at 10,3,14 in 101,-30; contains blocks 1616,0,-480 to 1631,255,-465), Region: (3,-1; contains chunks 96,-32 to 127,-1, blocks 1536,0,-512 to 2047,255,-1)
+Stacktrace:
+	at net.minecraft.world.World.notifyBlockOfNeighborChange(World.java:763)
+	at net.minecraft.world.World.notifyBlocksOfNeighborChange(World.java:715)
+	at net.minecraft.world.World.notifyBlockChange(World.java:673)
+	at net.minecraft.world.World.setBlock(World.java:523)
+	at net.minecraft.item.ItemBlock.placeBlockAt(ItemBlock.java:232)
+	at net.minecraft.item.ItemBlock.onItemUse(ItemBlock.java:116)
+	at net.minecraft.item.ItemStack.tryPlaceItemIntoWorld(ItemStack.java:141)
+	at net.minecraft.server.management.ItemInWorldManager.activateBlockOrUseItem(ItemInWorldManager.java:422)
+	at net.minecraft.network.NetHandlerPlayServer.processPlayerBlockPlacement(NetHandlerPlayServer.java:591)
+	at net.minecraft.network.play.client.C08PacketPlayerBlockPlacement.processPacket(C08PacketPlayerBlockPlacement.java:74)
+	at net.minecraft.network.play.client.C08PacketPlayerBlockPlacement.processPacket(C08PacketPlayerBlockPlacement.java:122)
+	at net.minecraft.network.NetworkManager.processReceivedPackets(NetworkManager.java:241)
+
+-- Ticking connection --
+Details:
+	Connection: net.minecraft.network.NetworkManager@6fb1d085
+Stacktrace:
+	at net.minecraft.network.NetworkSystem.networkTick(NetworkSystem.java:182)
+	at net.minecraft.server.MinecraftServer.updateTimeLightAndEntities(MinecraftServer.java:726)
+	at net.minecraft.server.MinecraftServer.tick(MinecraftServer.java:614)
+	at net.minecraft.server.integrated.IntegratedServer.tick(IntegratedServer.java:118)
+	at net.minecraft.server.MinecraftServer.run(MinecraftServer.java:485)
+	at net.minecraft.server.MinecraftServer$2.run(MinecraftServer.java:752)
+
+-- System Details --
+Details:
+	Minecraft Version: 1.7.10
+	Operating System: Mac OS X (x86_64) version 10.10
+	Java Version: 1.6.0_65, Apple Inc.
+	Java VM Version: Java HotSpot(TM) 64-Bit Server VM (mixed mode), Apple Inc.
+	Memory: 933743928 bytes (890 MB) / 1065025536 bytes (1015 MB) up to 1065025536 bytes (1015 MB)
+	JVM Flags: 3 total; -Xincgc -Xmx1024M -Xms1024M
+	AABB Pool Size: 0 (0 bytes; 0 MB) allocated, 0 (0 bytes; 0 MB) used
+	IntCache: cache: 0, tcache: 0, allocated: 0, tallocated: 0
+	FML: MCP v9.05 FML v7.10.18.1180 Minecraft Forge 10.13.0.1180 5 mods loaded, 5 mods active
+	mcp{9.05} [Minecraft Coder Pack] (minecraft.jar) Unloaded->Constructed->Pre-initialized->Initialized->Post-initialized->Available->Available->Available->Available
+	FML{7.10.18.1180} [Forge Mod Loader] (forgeSrc-1.7.10-10.13.0.1180.jar) Unloaded->Constructed->Pre-initialized->Initialized->Post-initialized->Available->Available->Available->Available
+	Forge{10.13.0.1180} [Minecraft Forge] (forgeSrc-1.7.10-10.13.0.1180.jar) Unloaded->Constructed->Pre-initialized->Initialized->Post-initialized->Available->Available->Available->Available
+	Pinoccio-Craft{1.0} [Pinoccio-Craft] (bin) Unloaded->Constructed->Pre-initialized->Initialized->Post-initialized->Available->Available->Available->Available
+	Pinoccio{1.0} [Pinoccio] (bin) Unloaded->Constructed->Pre-initialized->Initialized->Post-initialized->Available->Available->Available->Available
+	Profiler Position: N/A (disabled)
+	Vec3 Pool Size: 0 (0 bytes; 0 MB) allocated, 0 (0 bytes; 0 MB) used
+	Player Count: 1 / 8; [EntityPlayerMP['Player682'/0, l='Testing', x=1628.35, y=56.00, z=-465.21]]
+	Type: Integrated Server (map_client.txt)
+	Is Modded: Definitely; Client brand changed to 'fml,forge'

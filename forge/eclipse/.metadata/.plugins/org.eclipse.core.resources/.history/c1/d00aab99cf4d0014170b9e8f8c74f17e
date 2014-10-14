@@ -1,0 +1,90 @@
+package gavin.pinoccio;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.command.ICommand;
+import net.minecraft.command.ICommandSender;
+import net.minecraft.world.World;
+
+public class ReadCommand implements ICommand
+{
+	  private List aliases;
+	  public String[] commands = {"d2", "d3", "d4", "d5", "d6", "d7", "d8"};
+	  public ReadCommand()
+	  {
+	    this.aliases = new ArrayList();
+	    this.aliases.add("read");
+	    this.aliases.add("r");
+	  }
+
+	  @Override
+	  public String getCommandName()
+	  {
+	    return "read";
+	  }
+
+	  @Override
+	  public String getCommandUsage(ICommandSender icommandsender)
+	  {
+	    return "read <pin>";
+	  }
+
+	  @Override
+	  public List getCommandAliases()
+	  {
+	    return this.aliases;
+	  }
+
+	  @Override
+	  public void processCommand(ICommandSender icommandsender, String[] astring)
+	  {
+	    if(astring.length == 0)
+	    {
+	    	Minecraft.getMinecraft().thePlayer.sendChatMessage("Not enough pins entered, please use one");
+	      return;
+	    }
+	    if(astring.length > 1) {
+	    	Minecraft.getMinecraft().thePlayer.sendChatMessage("Too many pins, please only use one");
+		    return;
+	    }
+	    boolean pass = false;
+	    for(int i = 0; i < this.commands.length; i++) {
+	    	if (astring[0].equals(this.commands[i])) {
+	    		pass = true;
+	    		i = this.commands.length;
+	    	}
+	    }
+	    if(!pass) {return;}
+	    
+	    Minecraft.getMinecraft().thePlayer.sendChatMessage("Pin: [" + astring[0] + "]");
+	    Minecraft.getMinecraft().thePlayer.sendChatMessage("" + icommandsender.getCommandSenderName());
+	    World world = icommandsender.getEntityWorld();
+	  }
+
+	  @Override
+	  public boolean canCommandSenderUseCommand(ICommandSender icommandsender)
+	  {
+	    return true;
+	  }
+
+	  @Override
+	  public List addTabCompletionOptions(ICommandSender icommandsender,
+	      String[] astring)
+	  {
+	    return null;
+	  }
+
+	  @Override
+	  public boolean isUsernameIndex(String[] astring, int i)
+	  {
+	    return false;
+	  }
+
+	  @Override
+	  public int compareTo(Object o)
+	  {
+	    return 0;
+	  }
+	}
